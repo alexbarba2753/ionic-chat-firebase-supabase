@@ -1,0 +1,63 @@
+<div class="poll-card">
+  @if (loading()) {
+    <div class="poll-loading">
+      <ion-spinner name="dots"></ion-spinner>
+      <span>Cargando encuesta...</span>
+    </div>
+  } @else if (details(); as data) {
+    <div class="poll-header">
+      <span class="poll-tag">
+        <ion-icon name="stats-chart-outline"></ion-icon>
+        Encuesta
+      </span>
+      @if (data.poll.is_closed) {
+        <ion-badge color="medium" class="closed-badge">
+          <ion-icon name="lock-closed-outline"></ion-icon>
+          Cerrada
+        </ion-badge>
+      }
+    </div>
+
+    <p class="poll-question">{{ data.poll.question }}</p>
+
+    <div class="poll-options">
+      @for (option of data.options; track option.id) {
+        <button
+          type="button"
+          class="poll-option"
+          [class.selected]="option.isSelected"
+          [disabled]="data.poll.is_closed || busy()"
+          (click)="onVote(option.id)"
+        >
+          <span class="option-fill" [style.width.%]="option.percentage"></span>
+          <span class="option-content">
+            <span class="option-label">
+              @if (option.isSelected) {
+                <ion-icon name="checkmark-circle" color="primary"></ion-icon>
+              }
+              {{ option.label }}
+            </span>
+            <span class="option-stats">{{ option.percentage }}% ({{ option.votes }})</span>
+          </span>
+        </button>
+      }
+    </div>
+
+    @if (errorMessage(); as error) {
+      <p class="poll-error">{{ error }}</p>
+    }
+
+    <div class="poll-footer">
+      <span class="votes-total"> {{ data.totalVotes }} {{ data.totalVotes === 1 ? 'voto' : 'votos' }} </span>
+      @if (canManage && !data.poll.is_closed) {
+        <ion-button type="button" fill="clear" size="small" color="medium" [disabled]="busy()" (click)="onClosePoll()">
+          Cerrar encuesta
+        </ion-button>
+      }
+    </div>
+  } @else if (errorMessage(); as error) {
+    <p class="poll-error">{{ error }}</p>
+  } @else {
+    <p class="poll-error">Encuesta no disponible.</p>
+  }
+</div>

@@ -1,0 +1,49 @@
+.pinned-banner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--ion-color-light);
+  border-bottom: 1px solid var(--ion-color-light-shade);
+}
+
+.pinned-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  border-left: 3px solid var(--ion-color-primary);
+  padding: 2px 6px 2px 8px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+
+.pin-icon {
+  flex-shrink: 0;
+  font-size: 1rem;
+}
+
+.pinned-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pinned-title {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--ion-color-primary);
+}
+
+.pinned-preview {
+  font-size: 0.82rem;
+  color: var(--ion-color-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

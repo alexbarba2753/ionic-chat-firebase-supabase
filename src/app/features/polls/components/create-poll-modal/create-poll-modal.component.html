@@ -1,0 +1,85 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Nueva encuesta</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="onCancel()" aria-label="Cerrar modal">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="field-block">
+      <ion-textarea
+        label="Pregunta"
+        labelPlacement="floating"
+        fill="outline"
+        [rows]="2"
+        [maxlength]="200"
+        placeholder="Ej. A que hora nos reunimos?"
+        formControlName="question"
+      ></ion-textarea>
+    </div>
+
+    <div class="options-header">
+      <span>Opciones ({{ optionsArray.length }}/6)</span>
+      @if (canAddOption) {
+        <ion-button type="button" fill="clear" size="small" (click)="addOption()">
+          <ion-icon slot="start" name="add-outline"></ion-icon>
+          Agregar opcion
+        </ion-button>
+      }
+    </div>
+
+    <ion-list lines="none" formArrayName="options" class="options-list">
+      @for (control of optionsArray.controls; track $index) {
+        <ion-item class="option-item">
+          <ion-input
+            [label]="'Opcion ' + ($index + 1)"
+            labelPlacement="floating"
+            fill="outline"
+            [maxlength]="100"
+            [formControlName]="$index"
+          ></ion-input>
+          @if (canRemoveOption) {
+            <ion-button
+              slot="end"
+              type="button"
+              fill="clear"
+              color="danger"
+              [ariaLabel]="'Eliminar opcion ' + ($index + 1)"
+              (click)="removeOption($index)"
+            >
+              <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+            </ion-button>
+          }
+        </ion-item>
+      }
+    </ion-list>
+
+    @if (errorMessage(); as error) {
+      <ion-text color="danger" class="error-text">
+        <p>{{ error }}</p>
+      </ion-text>
+    }
+  </form>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <div class="footer-actions">
+      <ion-button type="button" fill="outline" color="medium" [disabled]="saving()" (click)="onCancel()">
+        Cancelar
+      </ion-button>
+      <ion-button type="button" [disabled]="saving() || form.invalid" (click)="onSubmit()">
+        @if (saving()) {
+          <ion-spinner name="crescent"></ion-spinner>
+        } @else {
+          Crear encuesta
+        }
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

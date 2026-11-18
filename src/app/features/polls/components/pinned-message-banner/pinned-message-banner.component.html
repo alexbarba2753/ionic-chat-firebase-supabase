@@ -1,0 +1,17 @@
+@if (message; as pinned) {
+  <div class="pinned-banner">
+    <button type="button" class="pinned-body" (click)="onJump()">
+      <ion-icon name="pin-outline" color="primary" class="pin-icon"></ion-icon>
+      <div class="pinned-text">
+        <span class="pinned-title">Mensaje fijado · {{ pinned.senderName }}</span>
+        <span class="pinned-preview">{{ previewText }}</span>
+      </div>
+    </button>
+
+    @if (canUnpin) {
+      <ion-button type="button" fill="clear" size="small" aria-label="Desfijar mensaje" (click)="onUnpin($event)">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
+    }
+  </div>
+}
