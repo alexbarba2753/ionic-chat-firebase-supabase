@@ -83,7 +83,7 @@ export class RegisterPage {
 
     try {
       await this.authService.registerWithEmail(email, password, displayName, username);
-      await this.router.navigateByUrl('/profile', { replaceUrl: true });
+      await this.router.navigateByUrl('/rooms', { replaceUrl: true });
     } catch (error) {
       this.errorMessage.set(this.authService.formatAuthError(error));
     } finally {

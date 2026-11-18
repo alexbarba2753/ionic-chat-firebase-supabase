@@ -10,17 +10,27 @@ export const routes: Routes = [
     loadChildren: () => import('./features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },
   {
+    path: 'rooms',
+    canActivate: [authGuard],
+    loadChildren: () => import('./features/rooms/rooms.routes').then((m) => m.ROOMS_ROUTES),
+  },
+  {
+    path: 'chat',
+    canActivate: [authGuard],
+    loadChildren: () => import('./features/chat/chat.routes').then((m) => m.CHAT_ROUTES),
+  },
+  {
     path: 'profile',
     canActivate: [authGuard],
     loadChildren: () => import('./features/profile/profile.routes').then((m) => m.PROFILE_ROUTES),
   },
   {
     path: '',
-    redirectTo: 'profile',
+    redirectTo: 'rooms',
     pathMatch: 'full',
   },
   {
     path: '**',
-    redirectTo: 'profile',
+    redirectTo: 'rooms',
   },
 ];

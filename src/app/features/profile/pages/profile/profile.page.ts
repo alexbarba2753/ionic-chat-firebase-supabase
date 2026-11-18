@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import type { ElementRef, OnInit } from '@angular/core';
 import { Component, ViewChild, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Capacitor } from '@capacitor/core';
 import {
   IonAvatar,
@@ -43,6 +43,7 @@ import { type CloudConnectionStatus, ProfileService } from '../../services/profi
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterLink,
     IonHeader,
     IonToolbar,
     IonTitle,

@@ -8,5 +8,5 @@ export const guestGuard: CanActivateFn = async () => {
   const firebaseClient = inject(FirebaseClientService);
   const router = inject(Router);
   const user = await firebaseClient.waitForAuthReady();
-  return user ? router.createUrlTree(['/profile']) : true;
+  return user ? router.createUrlTree(['/rooms']) : true;
 };

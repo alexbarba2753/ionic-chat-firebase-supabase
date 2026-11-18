@@ -1,5 +1,10 @@
 <ion-header>
   <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button routerLink="/rooms" aria-label="Ir a salas de chat">
+        <ion-icon slot="icon-only" name="chatbubbles-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     <ion-title>Mi Perfil</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="onVerifyCloud()" aria-label="Verificar conexion">
@@ -138,6 +143,11 @@
           </ion-item>
         </ion-list>
         }
+
+        <ion-button expand="block" routerLink="/rooms" class="ion-margin-top">
+          <ion-icon slot="start" name="chatbubbles-outline"></ion-icon>
+          Ir a salas de chat
+        </ion-button>
 
         <ion-button expand="block" color="danger" fill="outline" class="ion-margin-top" (click)="onLogout()">
           <ion-icon slot="start" name="log-out-outline"></ion-icon>

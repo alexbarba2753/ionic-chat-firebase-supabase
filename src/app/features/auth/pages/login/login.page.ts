@@ -76,7 +76,7 @@ export class LoginPage {
     try {
       const { email, password } = this.form.getRawValue();
       await this.authService.loginWithEmail(email, password);
-      await this.router.navigateByUrl('/profile', { replaceUrl: true });
+      await this.router.navigateByUrl('/rooms', { replaceUrl: true });
     } catch (error) {
       this.errorMessage.set(this.authService.formatAuthError(error));
     } finally {
@@ -90,7 +90,7 @@ export class LoginPage {
 
     try {
       await this.authService.loginWithGoogle();
-      await this.router.navigateByUrl('/profile', { replaceUrl: true });
+      await this.router.navigateByUrl('/rooms', { replaceUrl: true });
     } catch (error) {
       this.errorMessage.set(this.authService.formatAuthError(error));
     } finally {
