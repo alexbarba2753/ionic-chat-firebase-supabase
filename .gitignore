@@ -74,3 +74,13 @@ Thumbs.db
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Variables de entorno y credenciales locales
+.env
+.env.*
+!.env.example
+src/environments/environment.ts
+src/environments/environment.prod.ts
+.firebase/
+.firebaserc
+google-services.json

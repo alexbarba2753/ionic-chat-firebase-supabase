@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'ionic-chat-firebase-supabase',
+  appId: 'ec.edu.epn.chatmultiplataforma',
+  appName: 'Chat Multiplataforma',
   webDir: 'www'
 };
 
