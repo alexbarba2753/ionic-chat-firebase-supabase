@@ -1,0 +1,64 @@
+.center-state {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state {
+  padding: 48px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.empty-state ion-icon {
+  font-size: 3rem;
+}
+
+.empty-state p {
+  margin: 0;
+  color: var(--ion-color-medium);
+}
+
+.avatar-box {
+  position: relative;
+}
+
+.avatar-fallback {
+  width: 100%;
+  height: 100%;
+  background: var(--ion-color-primary);
+  color: #ffffff;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.presence-dot {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  background: var(--ion-color-medium);
+}
+
+.presence-dot.online {
+  background: var(--ion-color-success);
+}
+
+.presence-text {
+  font-size: 0.8rem;
+  color: var(--ion-color-medium);
+}
+
+.online-text {
+  color: var(--ion-color-success);
+  font-weight: 500;
+}

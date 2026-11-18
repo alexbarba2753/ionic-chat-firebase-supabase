@@ -1,0 +1,115 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/rooms"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Nueva sala</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="create-shell">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <ion-card class="form-card">
+        <ion-card-header>
+          <ion-card-title>Configuracion de la sala</ion-card-title>
+        </ion-card-header>
+
+        <ion-card-content>
+          <ion-segment [value]="form.controls.room_type.value" (ionChange)="onTypeChange($event)" class="type-segment">
+            <ion-segment-button value="group">
+              <ion-label>Grupo privado</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="channel">
+              <ion-label>Canal publico</ion-label>
+            </ion-segment-button>
+          </ion-segment>
+
+          <div class="field-item">
+            <ion-input
+              label="Nombre de la sala"
+              labelPlacement="floating"
+              fill="outline"
+              formControlName="name"
+            ></ion-input>
+          </div>
+
+          <div class="field-item">
+            <ion-textarea
+              label="Descripcion"
+              labelPlacement="floating"
+              fill="outline"
+              [rows]="2"
+              formControlName="description"
+            ></ion-textarea>
+          </div>
+
+          <ion-item lines="none" class="toggle-item">
+            <ion-label>Sala privada</ion-label>
+            <ion-toggle formControlName="is_private" aria-label="Sala privada"></ion-toggle>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card class="form-card">
+        <ion-card-header>
+          <ion-card-title>Invitar participantes ({{ selectedUsers().length }})</ion-card-title>
+        </ion-card-header>
+
+        <ion-card-content>
+          @if (selectedUsers().length > 0) {
+          <div class="selected-chips">
+            @for (selected of selectedUsers(); track selected.firebase_uid) {
+            <ion-chip color="primary" (click)="toggleCandidate(selected)">
+              <ion-label>{{ selected.display_name }}</ion-label>
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+            </ion-chip>
+            }
+          </div>
+          }
+
+          <ion-searchbar
+            placeholder="Buscar usuarios..."
+            [debounce]="250"
+            (ionInput)="onSearchCandidates($event)"
+          ></ion-searchbar>
+
+          @if (loadingUsers()) {
+          <div class="loader-row">
+            <ion-spinner name="dots"></ion-spinner>
+          </div>
+          } @else {
+          <ion-list lines="full">
+            @for (candidate of candidates(); track candidate.firebase_uid) {
+            <ion-item button [detail]="false" (click)="toggleCandidate(candidate)">
+              <ion-avatar slot="start">
+                @if (candidate.avatar_url) {
+                <img [src]="candidate.avatar_url" [alt]="candidate.display_name" />
+                } @else {
+                <div class="avatar-fallback">{{ getInitials(candidate.display_name) }}</div>
+                }
+              </ion-avatar>
+              <ion-label>
+                <h3>{{ candidate.display_name }}</h3>
+                <p>{{ candidate.username ? '@' + candidate.username : candidate.email }}</p>
+              </ion-label>
+              <ion-checkbox
+                slot="end"
+                [checked]="isSelected(candidate.firebase_uid)"
+                aria-label="Seleccionar usuario"
+              ></ion-checkbox>
+            </ion-item>
+            }
+          </ion-list>
+          }
+        </ion-card-content>
+      </ion-card>
+
+      <ion-button expand="block" type="submit" [disabled]="creating()">
+        @if (creating()) {
+        <ion-spinner name="crescent"></ion-spinner>
+        } @else { Crear sala }
+      </ion-button>
+    </form>
+  </div>
+</ion-content>

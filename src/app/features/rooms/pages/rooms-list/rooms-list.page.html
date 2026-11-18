@@ -1,0 +1,156 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Chats</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/rooms/directory" aria-label="Directorio de usuarios">
+        <ion-icon slot="icon-only" name="people-outline"></ion-icon>
+      </ion-button>
+      <ion-button routerLink="/rooms/create" aria-label="Crear nueva sala">
+        <ion-icon slot="icon-only" name="add-circle-outline"></ion-icon>
+      </ion-button>
+      <ion-button routerLink="/profile" aria-label="Mi perfil">
+        <ion-icon slot="icon-only" name="person-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <ion-toolbar>
+    <ion-searchbar
+      placeholder="Buscar chats o mensajes..."
+      [debounce]="200"
+      (ionInput)="onSearchInput($event)"
+    ></ion-searchbar>
+  </ion-toolbar>
+
+  <ion-toolbar>
+    <ion-segment [value]="activeTab()" (ionChange)="onTabChange($event)">
+      <ion-segment-button value="mine">
+        <ion-label>Mis salas</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="channels">
+        <ion-label>Canales publicos</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="onRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  @if (loading()) {
+  <div class="center-state">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+  } @else if (activeTab() === 'mine') { @if (filteredRooms().length === 0) {
+  <div class="empty-state">
+    <ion-icon name="chatbubbles-outline" color="medium"></ion-icon>
+    <h3>No hay conversaciones</h3>
+    <p>Busca contactos en el directorio o crea un grupo o canal.</p>
+    <div class="empty-actions">
+      <ion-button routerLink="/rooms/directory" size="small">
+        <ion-icon slot="start" name="people-outline"></ion-icon>
+        Ir al directorio
+      </ion-button>
+      <ion-button routerLink="/rooms/create" size="small" fill="outline">
+        <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+        Nueva sala
+      </ion-button>
+    </div>
+  </div>
+  } @else {
+  <ion-list lines="full">
+    @for (item of filteredRooms(); track item.room.id) {
+    <ion-item button [detail]="false" (click)="openRoom(item)">
+      <div slot="start" class="avatar-box">
+        <ion-avatar>
+          @if (getRoomAvatar(item); as avatar) {
+          <img [src]="avatar" [alt]="getRoomDisplayName(item)" />
+          } @else {
+          <div class="avatar-fallback">{{ getRoomInitials(item) }}</div>
+          }
+        </ion-avatar>
+        @if (item.room.room_type === 'direct') {
+        <span class="presence-dot" [class.online]="isDirectPeerOnline(item)"></span>
+        }
+      </div>
+
+      <ion-label>
+        <div class="room-top-row">
+          <h2 class="room-title">
+            @if (item.room.room_type === 'group') {
+            <ion-icon name="lock-closed-outline" class="type-icon"></ion-icon>
+            } @else if (item.room.room_type === 'channel') {
+            <ion-icon name="megaphone-outline" class="type-icon"></ion-icon>
+            } {{ getRoomDisplayName(item) }}
+          </h2>
+          <ion-note class="room-time">{{ formatTimestamp(item.room.last_message_at) }}</ion-note>
+        </div>
+
+        <div class="room-bottom-row">
+          <p class="room-preview">{{ item.room.last_message_text || 'Sin mensajes aun' }}</p>
+          <div class="room-meta">
+            @if (item.membership.is_muted) {
+            <ion-icon name="volume-mute-outline" color="medium" aria-label="Silenciado"></ion-icon>
+            } @if (item.membership.unread_count > 0) {
+            <ion-badge color="primary">{{ item.membership.unread_count }}</ion-badge>
+            }
+          </div>
+        </div>
+      </ion-label>
+
+      @if (item.room.room_type !== 'direct') {
+      <ion-button
+        slot="end"
+        fill="clear"
+        color="medium"
+        aria-label="Ajustes de sala"
+        (click)="openSettings(item.room.id, $event)"
+      >
+        <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
+      </ion-button>
+      }
+    </ion-item>
+    }
+  </ion-list>
+  } } @else { @if (filteredChannels().length === 0) {
+  <div class="empty-state">
+    <ion-icon name="megaphone-outline" color="medium"></ion-icon>
+    <h3>Sin canales publicos</h3>
+    <p>Crea el primer canal publico para toda la comunidad.</p>
+    <ion-button routerLink="/rooms/create" size="small">
+      <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+      Crear canal
+    </ion-button>
+  </div>
+  } @else {
+  <ion-list lines="full">
+    @for (entry of filteredChannels(); track entry.channel.id) {
+    <ion-item>
+      <div slot="start" class="channel-badge">
+        <ion-icon name="megaphone-outline" color="primary"></ion-icon>
+      </div>
+      <ion-label>
+        <h2>{{ entry.channel.name }}</h2>
+        <p>{{ entry.channel.description || 'Canal publico abierto' }}</p>
+      </ion-label>
+      @if (entry.joined) {
+      <ion-button slot="end" size="small" fill="outline" (click)="openChannel(entry.channel)"> Abrir </ion-button>
+      } @else {
+      <ion-button
+        slot="end"
+        size="small"
+        [disabled]="joiningRoomId() === entry.channel.id"
+        (click)="joinChannel(entry.channel)"
+      >
+        @if (joiningRoomId() === entry.channel.id) {
+        <ion-spinner name="dots"></ion-spinner>
+        } @else { Unirse }
+      </ion-button>
+      }
+    </ion-item>
+    }
+  </ion-list>
+  } }
+</ion-content>

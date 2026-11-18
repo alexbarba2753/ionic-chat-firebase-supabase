@@ -1,0 +1,67 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/rooms"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Directorio</ion-title>
+  </ion-toolbar>
+
+  <ion-toolbar>
+    <ion-searchbar
+      placeholder="Buscar por nombre, @usuario o correo..."
+      [debounce]="0"
+      (ionInput)="onSearchInput($event)"
+    ></ion-searchbar>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  @if (loading()) {
+  <div class="center-state">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+  } @else if (users().length === 0) {
+  <div class="empty-state">
+    <ion-icon name="people-outline" color="medium"></ion-icon>
+    <h3>Sin coincidencias</h3>
+    <p>Prueba con otro nombre, @usuario o correo.</p>
+  </div>
+  } @else {
+  <ion-list lines="full">
+    @for (user of users(); track user.firebase_uid) {
+    <ion-item button [detail]="false" (click)="startDirectChat(user)">
+      <div slot="start" class="avatar-box">
+        <ion-avatar>
+          @if (user.avatar_url) {
+          <img [src]="user.avatar_url" [alt]="user.display_name" />
+          } @else {
+          <div class="avatar-fallback">{{ getInitials(user.display_name) }}</div>
+          }
+        </ion-avatar>
+        <span class="presence-dot" [class.online]="isUserOnline(user)"></span>
+      </div>
+
+      <ion-label>
+        <h2>{{ user.display_name }}</h2>
+        <p>{{ user.username ? '@' + user.username + ' · ' : '' }}{{ user.email }}</p>
+        <p class="presence-text" [class.online-text]="isUserOnline(user)">{{ getPresenceLabel(user) }}</p>
+      </ion-label>
+
+      <ion-button
+        slot="end"
+        fill="clear"
+        aria-label="Abrir chat directo"
+        [disabled]="openingUid() === user.firebase_uid"
+        (click)="startDirectChat(user); $event.stopPropagation()"
+      >
+        @if (openingUid() === user.firebase_uid) {
+        <ion-spinner name="dots"></ion-spinner>
+        } @else {
+        <ion-icon slot="icon-only" name="chatbubble-ellipses-outline"></ion-icon>
+        }
+      </ion-button>
+    </ion-item>
+    }
+  </ion-list>
+  }
+</ion-content>
