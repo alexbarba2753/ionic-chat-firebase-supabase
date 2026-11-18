@@ -1,0 +1,28 @@
+.auth-shell {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 460px;
+  border-radius: 16px;
+}
+
+.field-item {
+  margin-bottom: 12px;
+  --border-radius: 10px;
+}
+
+.error-banner {
+  font-size: 0.875rem;
+  margin: 4px 0 8px;
+}
+
+.auth-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}

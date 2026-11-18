@@ -1,0 +1,41 @@
+.auth-shell {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  border-radius: 16px;
+}
+
+.brand-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--ion-color-primary);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 12px;
+}
+
+.field-item {
+  margin-bottom: 12px;
+  --border-radius: 10px;
+}
+
+.error-banner {
+  font-size: 0.875rem;
+  margin: 4px 0 8px;
+}
+
+.auth-links {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+}
