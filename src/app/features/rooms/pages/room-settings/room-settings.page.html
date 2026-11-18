@@ -74,7 +74,7 @@
             <div slot="start" class="avatar-box">
               <ion-avatar>
                 @if (member.profile?.avatar_url; as avatar) {
-                <img [src]="avatar" [alt]="member.profile?.display_name || 'Miembro'" />
+                <img [src]="avatar" [alt]="member.profile.display_name || 'Miembro'" />
                 } @else {
                 <div class="avatar-fallback">{{ getInitials(member.profile?.display_name || 'U') }}</div>
                 }
@@ -86,7 +86,7 @@
               <h3>
                 {{ member.profile?.display_name || member.user_uid }} @if (member.user_uid === currentUid()) { (Tu) }
               </h3>
-              <p>{{ member.profile?.username ? '@' + member.profile?.username : member.profile?.email || '' }}</p>
+              <p>{{ member.profile?.username ? '@' + member.profile.username : member.profile?.email || '' }}</p>
             </ion-label>
 
             @if (isAdmin() && currentRoom.room_type !== 'direct' && member.user_uid !== currentUid()) {

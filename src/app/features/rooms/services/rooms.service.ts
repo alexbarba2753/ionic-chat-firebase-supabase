@@ -26,11 +26,11 @@ export interface UpdateRoomPayload {
   avatar_url?: string | null;
 }
 
-interface MembershipWithRoomRow extends RoomMember {
+interface MembershipWithRoomRow extends Omit<RoomMember, 'profile'> {
   room: ChatRoom | null;
 }
 
-interface MemberWithProfileRow extends RoomMember {
+interface MemberWithProfileRow extends Omit<RoomMember, 'profile'> {
   profile: UserProfile | null;
 }
 
@@ -60,7 +60,7 @@ export class RoomsService {
       throw error;
     }
 
-    const rows = (data ?? []) as MembershipWithRoomRow[];
+    const rows = (data ?? []) as unknown as MembershipWithRoomRow[];
     const summaries: UserRoomSummary[] = [];
     const directRoomIds: string[] = [];
 
@@ -94,7 +94,7 @@ export class RoomsService {
         .neq('user_uid', uid);
 
       const peerByRoom: Record<string, UserProfile | null> = {};
-      for (const peer of (peerRows ?? []) as { room_id: string; profile: UserProfile | null }[]) {
+      for (const peer of (peerRows ?? []) as unknown as { room_id: string; profile: UserProfile | null }[]) {
         peerByRoom[peer.room_id] = peer.profile ?? null;
       }
 
@@ -158,7 +158,7 @@ export class RoomsService {
       member: 2,
     };
 
-    return ((data ?? []) as MemberWithProfileRow[])
+    return ((data ?? []) as unknown as MemberWithProfileRow[])
       .map((row) => ({
         id: row.id,
         room_id: row.room_id,
@@ -204,7 +204,7 @@ export class RoomsService {
       throw myRoomsError;
     }
 
-    const candidateRooms = (myDirectMemberships ?? []) as { room_id: string; room: ChatRoom }[];
+    const candidateRooms = (myDirectMemberships ?? []) as unknown as { room_id: string; room: ChatRoom }[];
     const candidateIds = candidateRooms.map((item) => item.room_id);
 
     if (candidateIds.length > 0) {
