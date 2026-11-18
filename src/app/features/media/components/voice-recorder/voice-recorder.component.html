@@ -1,0 +1,45 @@
+<div class="voice-recorder">
+  @if (!recording()) {
+    <ion-button
+      fill="clear"
+      color="medium"
+      size="small"
+      [disabled]="disabled"
+      aria-label="Grabar nota de voz"
+      (click)="startRecording()"
+    >
+      <ion-icon slot="icon-only" name="mic-outline"></ion-icon>
+    </ion-button>
+  } @else {
+    <div class="recording-bar">
+      <ion-button
+        fill="clear"
+        color="danger"
+        size="small"
+        aria-label="Cancelar nota de voz"
+        (click)="cancelRecording()"
+      >
+        <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+      </ion-button>
+
+      <div class="timer-group">
+        <span class="pulse-dot"></span>
+        <span class="timer-text">{{ formattedTimer() }}</span>
+      </div>
+
+      <ion-button
+        fill="solid"
+        color="primary"
+        size="small"
+        shape="round"
+        aria-label="Enviar nota de voz"
+        (click)="stopAndSend()"
+      >
+        <ion-icon slot="icon-only" name="send"></ion-icon>
+      </ion-button>
+    </div>
+  }
+  @if (errorMessage()) {
+    <ion-text color="danger" class="error-hint">{{ errorMessage() }}</ion-text>
+  }
+</div>

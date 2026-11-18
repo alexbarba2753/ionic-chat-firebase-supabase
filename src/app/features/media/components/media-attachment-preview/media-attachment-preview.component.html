@@ -1,0 +1,68 @@
+@if (mediaType === 'image') {
+  <button
+    type="button"
+    class="image-trigger"
+    [attr.aria-label]="'Ver imagen ' + displayFileName"
+    (click)="openViewer()"
+  >
+    <img class="preview-thumb" [src]="mediaUrl" [alt]="displayFileName" loading="lazy" />
+  </button>
+
+  <ion-modal [isOpen]="viewerOpen()" (didDismiss)="closeViewer()">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar color="dark">
+          <ion-title>{{ displayFileName }}</ion-title>
+          <ion-buttons slot="end">
+            <ion-button aria-label="Descargar imagen" (click)="openOrDownload()">
+              <ion-icon slot="icon-only" name="download-outline"></ion-icon>
+            </ion-button>
+            <ion-button aria-label="Cerrar visor" (click)="closeViewer()">
+              <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content class="viewer-content" color="dark">
+        <div class="viewer-body">
+          <img class="viewer-image" [src]="mediaUrl" [alt]="displayFileName" />
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+} @else if (mediaType === 'document') {
+  <div class="doc-card" [class.own]="isOwnMessage">
+    <div class="doc-icon-box">
+      <ion-icon name="document-text-outline"></ion-icon>
+    </div>
+    <div class="doc-meta">
+      <div class="doc-name">{{ displayFileName }}</div>
+      <div class="doc-sub">
+        <span>{{ fileExtensionLabel }}</span>
+        @if (formattedSize) {
+          <span> · {{ formattedSize }}</span>
+        }
+      </div>
+    </div>
+    <ion-button
+      fill="clear"
+      size="small"
+      [color]="isOwnMessage ? 'light' : 'primary'"
+      aria-label="Descargar documento"
+      (click)="openOrDownload()"
+    >
+      <ion-icon slot="icon-only" name="download-outline"></ion-icon>
+    </ion-button>
+  </div>
+} @else if (mediaType === 'audio') {
+  <div class="audio-card" [class.own]="isOwnMessage">
+    <div class="audio-header">
+      <ion-icon name="mic-outline"></ion-icon>
+      <span class="audio-label">Nota de voz</span>
+      @if (formattedDuration) {
+        <span class="audio-duration">{{ formattedDuration }}</span>
+      }
+    </div>
+    <audio class="audio-player" controls preload="metadata" [src]="mediaUrl"></audio>
+  </div>
+}

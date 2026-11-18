@@ -1,0 +1,124 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>{{ roomName }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button aria-label="Recargar galeria" [disabled]="loading()" (click)="loadMedia()">
+        <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
+      </ion-button>
+      <ion-button aria-label="Cerrar galeria" (click)="dismiss()">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <ion-toolbar>
+    <ion-segment [value]="activeFilter()" (ionChange)="onFilterChange($event)">
+      <ion-segment-button value="all">
+        <ion-label>Todos ({{ counts().all }})</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="image">
+        <ion-label>Imagenes ({{ counts().image }})</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="document">
+        <ion-label>Docs ({{ counts().document }})</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="audio">
+        <ion-label>Audios ({{ counts().audio }})</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if (loading()) {
+    <div class="center-state">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  } @else if (errorMessage()) {
+    <div class="center-state">
+      <ion-text color="danger">{{ errorMessage() }}</ion-text>
+      <ion-button fill="outline" size="small" (click)="loadMedia()">Reintentar</ion-button>
+    </div>
+  } @else if (filteredItems().length === 0) {
+    <div class="center-state empty-state">
+      <ion-icon name="images-outline" class="empty-icon"></ion-icon>
+      <p>No hay archivos en esta categoria.</p>
+    </div>
+  } @else {
+    @if (imageItems().length > 0) {
+      <div class="image-grid">
+        @for (item of imageItems(); track item.id) {
+          <button
+            type="button"
+            class="grid-tile"
+            [attr.aria-label]="'Abrir imagen ' + item.file_name"
+            (click)="openImagePreview(item)"
+          >
+            <img [src]="item.public_url" [alt]="item.file_name" loading="lazy" />
+          </button>
+        }
+      </div>
+    }
+    @if (nonImageItems().length > 0) {
+      <ion-list lines="full" class="media-list">
+        @for (item of nonImageItems(); track item.id) {
+          <ion-item>
+            <ion-icon
+              slot="start"
+              [name]="item.media_type === 'audio' ? 'mic-outline' : 'document-text-outline'"
+              color="primary"
+            ></ion-icon>
+            <ion-label class="item-label">
+              <h3>{{ item.file_name }}</h3>
+              <p>
+                {{ formatSize(item.file_size) }}
+                @if (item.media_type === 'audio' && item.duration_seconds) {
+                  <span> · {{ formatDuration(item.duration_seconds) }}</span>
+                }
+                @if (item.created_at) {
+                  <span> · {{ formatDate(item.created_at) }}</span>
+                }
+              </p>
+              @if (item.media_type === 'audio') {
+                <audio class="gallery-audio" controls preload="metadata" [src]="item.public_url"></audio>
+              }
+            </ion-label>
+            <ion-button
+              slot="end"
+              fill="clear"
+              [attr.aria-label]="'Descargar ' + item.file_name"
+              (click)="openOrDownload(item)"
+            >
+              <ion-icon slot="icon-only" name="download-outline"></ion-icon>
+            </ion-button>
+          </ion-item>
+        }
+      </ion-list>
+    }
+  }
+</ion-content>
+
+<ion-modal [isOpen]="!!selectedImage()" (didDismiss)="closeImagePreview()">
+  <ng-template>
+    @if (selectedImage(); as img) {
+      <ion-header>
+        <ion-toolbar color="dark">
+          <ion-title>{{ img.file_name }}</ion-title>
+          <ion-buttons slot="end">
+            <ion-button aria-label="Descargar imagen" (click)="openOrDownload(img)">
+              <ion-icon slot="icon-only" name="download-outline"></ion-icon>
+            </ion-button>
+            <ion-button aria-label="Cerrar imagen" (click)="closeImagePreview()">
+              <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content color="dark">
+        <div class="preview-body">
+          <img class="preview-full" [src]="img.public_url" [alt]="img.file_name" />
+        </div>
+      </ion-content>
+    }
+  </ng-template>
+</ion-modal>
