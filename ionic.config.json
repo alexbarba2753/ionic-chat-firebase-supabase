@@ -1,0 +1,7 @@
+{
+  "name": "ionic-chat-firebase-supabase",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
