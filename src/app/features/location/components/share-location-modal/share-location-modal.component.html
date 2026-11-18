@@ -1,0 +1,89 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()" aria-label="Cancelar">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
+    <ion-title>Compartir ubicacion</ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="capturePosition()" [disabled]="loading() || saving()" aria-label="Actualizar GPS">
+        <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if (loading()) {
+    <div class="state-box">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Obteniendo ubicacion GPS...</p>
+    </div>
+  } @else if (!coords() && errorMessage(); as errorText) {
+    <div class="state-box error-box">
+      <ion-icon name="alert-circle-outline" color="danger"></ion-icon>
+      <ion-text color="danger">
+        <p>{{ errorText }}</p>
+      </ion-text>
+      <ion-button size="small" fill="outline" (click)="capturePosition()">
+        <ion-icon slot="start" name="refresh-outline"></ion-icon>
+        Reintentar GPS
+      </ion-button>
+    </div>
+  } @else if (coords(); as current) {
+    <div class="modal-body">
+      <div class="preview-wrapper">
+        <app-location-card
+          [latitude]="current.latitude"
+          [longitude]="current.longitude"
+          [accuracy]="current.accuracy"
+          [label]="labelInput().trim() || 'Mi ubicacion actual'"
+          [compact]="true"
+        ></app-location-card>
+      </div>
+
+      <div class="meta-summary">
+        <ion-icon name="location-outline" color="primary"></ion-icon>
+        <span>{{ formattedCoordinates }}</span>
+        @if (current.accuracy !== null) {
+          <span class="accuracy-badge">Precision: ± {{ current.accuracy }} m</span>
+        }
+      </div>
+
+      <ion-input
+        label="Etiqueta (opcional)"
+        labelPlacement="floating"
+        fill="outline"
+        placeholder="Ej. Entrada campus"
+        [maxlength]="120"
+        [clearInput]="true"
+        [value]="labelInput()"
+        (ionInput)="onLabelInput($event)"
+      ></ion-input>
+
+      @if (errorMessage(); as saveError) {
+        <ion-text color="danger">
+          <p class="inline-error">{{ saveError }}</p>
+        </ion-text>
+      }
+
+      <div class="footer-actions">
+        <ion-button expand="block" [disabled]="saving()" (click)="confirmLocation()">
+          @if (saving()) {
+            <ion-spinner name="dots"></ion-spinner>
+          } @else {
+            <ion-icon slot="start" name="send-outline"></ion-icon>
+            Enviar ubicacion
+          }
+        </ion-button>
+
+        <ion-button expand="block" fill="clear" color="medium" [disabled]="saving()" (click)="cancel()">
+          Cancelar
+        </ion-button>
+      </div>
+    </div>
+  }
+</ion-content>

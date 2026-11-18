@@ -1,0 +1,52 @@
+.state-box {
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 12px;
+}
+
+.error-box ion-icon {
+  font-size: 2.2rem;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.preview-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.meta-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--ion-color-medium);
+}
+
+.accuracy-badge {
+  margin-left: auto;
+  font-weight: 500;
+}
+
+.inline-error {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.footer-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}

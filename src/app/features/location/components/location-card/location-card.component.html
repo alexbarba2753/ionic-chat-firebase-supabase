@@ -1,0 +1,58 @@
+<div class="location-card" [class.compact]="compact">
+  <div class="location-header">
+    <div class="location-title">
+      <ion-icon name="location-outline" color="danger"></ion-icon>
+      <span>{{ displayLabel }}</span>
+    </div>
+
+    @if (formattedAccuracy; as accuracyText) {
+      <ion-chip class="accuracy-chip" color="medium" outline="true">
+        <ion-label>{{ accuracyText }}</ion-label>
+      </ion-chip>
+    }
+  </div>
+
+  @if (hasValidCoords()) {
+    @if (showEmbed && safeEmbedUrl(); as embedUrl) {
+      <div class="map-frame-wrapper">
+        <iframe
+          class="map-frame"
+          [src]="embedUrl"
+          title="Mapa de ubicacion compartida"
+          loading="lazy"
+          referrerpolicy="no-referrer"
+        ></iframe>
+      </div>
+    }
+
+    <div class="coords-text">{{ formattedCoords() }}</div>
+
+    <div class="actions-row">
+      <ion-button
+        size="small"
+        fill="outline"
+        [href]="googleMapsUrl()"
+        target="_blank"
+        rel="noopener noreferrer"
+        (click)="onOpenExternal('google')"
+      >
+        <ion-icon slot="start" name="navigate-outline"></ion-icon>
+        Google Maps
+      </ion-button>
+
+      <ion-button
+        size="small"
+        fill="clear"
+        [href]="openStreetMapUrl()"
+        target="_blank"
+        rel="noopener noreferrer"
+        (click)="onOpenExternal('osm')"
+      >
+        <ion-icon slot="start" name="open-outline"></ion-icon>
+        OpenStreetMap
+      </ion-button>
+    </div>
+  } @else {
+    <p class="invalid-coords">Coordenadas no disponibles.</p>
+  }
+</div>
