@@ -1,5 +1,7 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import type { CanActivateFn } from '@angular/router';
+import { Router } from '@angular/router';
+
 import { FirebaseClientService } from '../services/firebase-client.service';
 
 export const guestGuard: CanActivateFn = async () => {

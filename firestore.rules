@@ -1,0 +1,239 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    function uidUnchanged() {
+      return !('uid' in request.resource.data) ||
+        request.resource.data.uid == request.auth.uid;
+    }
+
+    function uidNotModified() {
+      return !('uid' in request.resource.data) ||
+        request.resource.data.uid == resource.data.uid;
+    }
+
+    function hasRequiredFields(data, fields) {
+      return data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(data, fields) {
+      return data.keys().hasOnly(fields);
+    }
+
+    function isValidOptionalString(data, field, maxLen) {
+      return !(field in data) ||
+        data[field] == null ||
+        (data[field] is string && data[field].size() <= maxLen);
+    }
+
+    function isValidOptionalBool(data, field) {
+      return !(field in data) ||
+        data[field] == null ||
+        data[field] is bool;
+    }
+
+    function isValidOptionalTime(data, field) {
+      return !(field in data) ||
+        data[field] == null ||
+        data[field] is timestamp ||
+        (data[field] is string && data[field].size() <= 64);
+    }
+
+    function isValidPresence(data, uid) {
+      return hasRequiredFields(data, ['uid']) &&
+        hasOnlyAllowedFields(data, [
+          'uid',
+          'displayName',
+          'photoURL',
+          'avatarUrl',
+          'isOnline',
+          'lastSeen',
+          'statusText',
+          'updatedAt'
+        ]) &&
+        data.uid is string &&
+        data.uid == uid &&
+        data.uid.size() > 0 &&
+        data.uid.size() <= 128 &&
+        isValidOptionalString(data, 'displayName', 100) &&
+        isValidOptionalString(data, 'photoURL', 2048) &&
+        isValidOptionalString(data, 'avatarUrl', 2048) &&
+        isValidOptionalBool(data, 'isOnline') &&
+        isValidOptionalTime(data, 'lastSeen') &&
+        isValidOptionalString(data, 'statusText', 200) &&
+        isValidOptionalTime(data, 'updatedAt');
+    }
+
+    function isValidReplyTo(reply) {
+      return reply == null || (
+        reply is map &&
+        reply.keys().hasOnly(['id', 'messageId', 'senderUid', 'senderName', 'previewText', 'text', 'type']) &&
+        isValidOptionalString(reply, 'id', 128) &&
+        isValidOptionalString(reply, 'messageId', 128) &&
+        isValidOptionalString(reply, 'senderUid', 128) &&
+        isValidOptionalString(reply, 'senderName', 100) &&
+        isValidOptionalString(reply, 'previewText', 1000) &&
+        isValidOptionalString(reply, 'text', 1000) &&
+        isValidOptionalString(reply, 'type', 32)
+      );
+    }
+
+    function isValidMessageType(data) {
+      return !('type' in data) || (
+        data.type is string &&
+        data.type in ['text', 'image', 'document', 'file', 'audio', 'voice', 'location', 'poll', 'system']
+      );
+    }
+
+    function isValidMessage(data, roomId) {
+      return hasRequiredFields(data, ['roomId', 'senderUid']) &&
+        hasOnlyAllowedFields(data, [
+          'id',
+          'roomId',
+          'senderUid',
+          'senderName',
+          'senderAvatar',
+          'type',
+          'text',
+          'mediaId',
+          'mediaUrl',
+          'fileName',
+          'mimeType',
+          'fileSize',
+          'durationSeconds',
+          'locationId',
+          'latitude',
+          'longitude',
+          'locationLabel',
+          'accuracy',
+          'isLive',
+          'pollId',
+          'replyTo',
+          'reactions',
+          'readBy',
+          'isEdited',
+          'isDeleted',
+          'isForwarded',
+          'forwardedFrom',
+          'createdAt',
+          'updatedAt'
+        ]) &&
+        isValidOptionalString(data, 'id', 128) &&
+        data.roomId is string &&
+        data.roomId == roomId &&
+        data.roomId.size() > 0 &&
+        data.roomId.size() <= 128 &&
+        data.senderUid is string &&
+        data.senderUid.size() > 0 &&
+        data.senderUid.size() <= 128 &&
+        isValidOptionalString(data, 'senderName', 100) &&
+        isValidOptionalString(data, 'senderAvatar', 2048) &&
+        isValidMessageType(data) &&
+        isValidOptionalString(data, 'text', 5000) &&
+        isValidOptionalString(data, 'mediaId', 128) &&
+        isValidOptionalString(data, 'mediaUrl', 2048) &&
+        isValidOptionalString(data, 'fileName', 255) &&
+        isValidOptionalString(data, 'mimeType', 128) &&
+        (!('fileSize' in data) || data.fileSize == null || (data.fileSize is number && data.fileSize >= 0 && data.fileSize <= 104857600)) &&
+        (!('durationSeconds' in data) || data.durationSeconds == null || (data.durationSeconds is number && data.durationSeconds >= 0 && data.durationSeconds <= 3600)) &&
+        isValidOptionalString(data, 'locationId', 128) &&
+        (!('latitude' in data) || data.latitude == null || (data.latitude is number && data.latitude >= -90 && data.latitude <= 90)) &&
+        (!('longitude' in data) || data.longitude == null || (data.longitude is number && data.longitude >= -180 && data.longitude <= 180)) &&
+        isValidOptionalString(data, 'locationLabel', 300) &&
+        (!('accuracy' in data) || data.accuracy == null || (data.accuracy is number && data.accuracy >= 0 && data.accuracy <= 100000)) &&
+        isValidOptionalBool(data, 'isLive') &&
+        isValidOptionalString(data, 'pollId', 128) &&
+        (!('replyTo' in data) || isValidReplyTo(data.replyTo)) &&
+        (!('reactions' in data) || data.reactions == null || (data.reactions is map && data.reactions.size() <= 50)) &&
+        (!('readBy' in data) || data.readBy == null || (data.readBy is list && data.readBy.size() <= 500)) &&
+        isValidOptionalBool(data, 'isEdited') &&
+        isValidOptionalBool(data, 'isDeleted') &&
+        isValidOptionalBool(data, 'isForwarded') &&
+        isValidOptionalString(data, 'forwardedFrom', 128) &&
+        isValidOptionalTime(data, 'createdAt') &&
+        isValidOptionalTime(data, 'updatedAt');
+    }
+
+    function areMessageImmutableFieldsUnchanged() {
+      return request.resource.data.senderUid == resource.data.senderUid &&
+        request.resource.data.roomId == resource.data.roomId &&
+        (!('createdAt' in resource.data) || request.resource.data.createdAt == resource.data.createdAt) &&
+        (!('id' in resource.data) || resource.data.id == null || request.resource.data.id == resource.data.id);
+    }
+
+    function isReactionOrReadUpdate() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reactions', 'readBy', 'updatedAt']);
+    }
+
+    function isValidTypingState(data) {
+      return hasRequiredFields(data, ['roomId', 'uid', 'isTyping']) &&
+        hasOnlyAllowedFields(data, ['roomId', 'uid', 'displayName', 'isTyping', 'updatedAt']) &&
+        data.roomId is string &&
+        data.roomId.size() > 0 &&
+        data.roomId.size() <= 128 &&
+        data.uid is string &&
+        data.uid.size() > 0 &&
+        data.uid.size() <= 128 &&
+        isValidOptionalString(data, 'displayName', 100) &&
+        data.isTyping is bool &&
+        isValidOptionalTime(data, 'updatedAt');
+    }
+
+    // coleccion academica previa compartida en moviles-a2959
+    match /candidatos/{candidatoId} {
+      allow read, create: if true;
+      allow update, delete: if false;
+    }
+
+    match /user_presence/{uid} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(uid) &&
+        uidUnchanged() &&
+        isValidPresence(request.resource.data, uid);
+      allow update: if isOwner(uid) &&
+        uidNotModified() &&
+        isValidPresence(request.resource.data, uid);
+      allow delete: if false;
+    }
+
+    match /rooms/{roomId}/messages/{messageId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() &&
+        request.resource.data.senderUid == request.auth.uid &&
+        isValidMessage(request.resource.data, roomId);
+      // solo el autor edita el mensaje; los demas solo reaccionan o marcan lectura
+      allow update: if isAuthenticated() &&
+        isValidMessage(request.resource.data, roomId) &&
+        areMessageImmutableFieldsUnchanged() &&
+        (resource.data.senderUid == request.auth.uid || isReactionOrReadUpdate());
+      allow delete: if isAuthenticated() &&
+        resource.data.senderUid == request.auth.uid;
+    }
+
+    match /typing_states/{stateId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() &&
+        uidUnchanged() &&
+        isValidTypingState(request.resource.data);
+      allow update: if isAuthenticated() &&
+        resource.data.uid == request.auth.uid &&
+        uidNotModified() &&
+        (!('roomId' in resource.data) || request.resource.data.roomId == resource.data.roomId) &&
+        isValidTypingState(request.resource.data);
+      allow delete: if isAuthenticated() &&
+        resource.data.uid == request.auth.uid;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

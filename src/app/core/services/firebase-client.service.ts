@@ -1,16 +1,18 @@
 import { Injectable } from '@angular/core';
-import { FirebaseApp, getApp, getApps, initializeApp } from 'firebase/app';
-import { Auth, getAuth, onAuthStateChanged, User } from 'firebase/auth';
-import { Firestore, getFirestore } from 'firebase/firestore';
+import type { FirebaseApp } from 'firebase/app';
+import { getApp, getApps, initializeApp } from 'firebase/app';
+import type { Auth, User } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import type { Firestore } from 'firebase/firestore';
+import { getFirestore } from 'firebase/firestore';
+
 import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FirebaseClientService {
-  readonly app: FirebaseApp = getApps().length
-    ? getApp()
-    : initializeApp(environment.firebase);
+  readonly app: FirebaseApp = getApps().length ? getApp() : initializeApp(environment.firebase);
   readonly auth: Auth = getAuth(this.app);
   readonly firestore: Firestore = getFirestore(this.app);
 
@@ -28,7 +30,7 @@ export class FirebaseClientService {
         () => {
           unsubscribe();
           resolve(null);
-        }
+        },
       );
     });
   }

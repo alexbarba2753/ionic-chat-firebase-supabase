@@ -31,9 +31,9 @@ import {
   ToastController,
 } from '@ionic/angular';
 
+import type { UserProfile } from '../../../../core/models/user-profile.model';
+import { FirebaseClientService } from '../../../../core/services/firebase-client.service';
 import { AuthService } from '../../../auth/services/auth.service';
-import type { UserProfile } from '../../../core/models/user-profile.model';
-import { FirebaseClientService } from '../../../core/services/firebase-client.service';
 import { type CloudConnectionStatus, ProfileService } from '../../services/profile.service';
 
 @Component({
