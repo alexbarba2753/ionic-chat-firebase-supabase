@@ -1,0 +1,16 @@
+.bubble-row { display: flex; margin-bottom: 8px; padding: 2px 4px; border-radius: 10px; &.own { justify-content: flex-end; } &.highlighted { background: #fef08a66; } }
+.bubble { max-width: 82%; min-width: 110px; padding: 8px 10px 6px; border-radius: 14px; background: #fff; color: #1e293b; box-shadow: 0 1px 2px #00000014; &.own { background: #dcf8c6; } &.deleted { opacity: 0.75; } }
+.sender-name { font-size: 0.75rem; font-weight: 600; color: var(--ion-color-primary); margin-bottom: 3px; }
+.forwarded-tag, .deleted-text { display: flex; align-items: center; gap: 4px; font-size: 0.75rem; font-style: italic; color: var(--ion-color-medium); margin-bottom: 4px; }
+.reply-quote { width: 100%; text-align: left; border: 0; border-left: 3px solid var(--ion-color-primary); background: #0000000d; border-radius: 6px; padding: 4px 8px; margin-bottom: 6px; display: flex; flex-direction: column; }
+.reply-author { font-size: 0.72rem; font-weight: 600; color: var(--ion-color-primary); }
+.reply-preview { font-size: 0.76rem; color: var(--ion-color-medium); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.embed-block { margin-bottom: 4px; }
+.message-text { font-size: 0.94rem; line-height: 1.35; white-space: pre-wrap; word-break: break-word; }
+.meta-row { display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-top: 4px; font-size: 0.68rem; color: #64748b; }
+.read-check { font-size: 0.95rem; &.read { color: #0284c7; } }
+.menu-trigger { --padding-start: 2px; --padding-end: 2px; height: 20px; margin: 0; }
+.actions-bar, .emoji-picker { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 4px; border-top: 1px solid #e2e8f0; }
+.emoji-btn { border: 0; background: none; font-size: 1.15rem; padding: 2px 6px; }
+.reactions-row { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.reaction-pill { display: inline-flex; gap: 3px; padding: 2px 7px; border-radius: 99px; border: 1px solid #cbd5e1; background: #fff; font-size: 0.75rem; &.active { border-color: var(--ion-color-primary); } }

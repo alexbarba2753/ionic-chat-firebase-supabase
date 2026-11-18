@@ -1,0 +1,54 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Reenviar mensaje</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="close()" aria-label="Cerrar">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-searchbar placeholder="Buscar sala..." [debounce]="150" (ionInput)="onSearch($event)"></ion-searchbar>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  @if (messagePreview) {
+    <div class="preview-box">
+      <ion-text color="medium">
+        <small>Reenviar: {{ messagePreview }}</small>
+      </ion-text>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="center-box">
+      <ion-spinner name="crescent"></ion-spinner>
+    </div>
+  } @else if (filteredRooms().length === 0) {
+    <div class="center-box">
+      <ion-text color="medium">No hay otras salas disponibles.</ion-text>
+    </div>
+  } @else {
+    <ion-list>
+      @for (room of filteredRooms(); track room.id) {
+        <ion-item button (click)="selectRoom(room)">
+          <ion-avatar slot="start" class="room-avatar">
+            @if (room.avatar_url) {
+              <img [src]="room.avatar_url" [alt]="room.name" />
+            } @else {
+              <div class="avatar-fallback">
+                <ion-icon [name]="roomIcon(room)"></ion-icon>
+              </div>
+            }
+          </ion-avatar>
+          <ion-label>
+            <h3>{{ room.name }}</h3>
+            <p>{{ room.last_message_text || 'Sin mensajes recientes' }}</p>
+          </ion-label>
+          <ion-icon slot="end" name="arrow-redo-outline" color="primary"></ion-icon>
+        </ion-item>
+      }
+    </ion-list>
+  }
+</ion-content>

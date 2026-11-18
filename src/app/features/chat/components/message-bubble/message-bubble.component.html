@@ -1,0 +1,149 @@
+<div class="bubble-row" [class.own]="isOwn" [class.highlighted]="isHighlighted" [id]="'msg-' + (message.id || '')">
+  <div class="bubble" [class.own]="isOwn" [class.deleted]="message.isDeleted">
+    @if (!isOwn && showSenderName) {
+      <div class="sender-name">{{ message.senderName }}</div>
+    }
+
+    @if (message.isForwarded && !message.isDeleted) {
+      <div class="forwarded-tag">
+        <ion-icon name="arrow-redo-outline"></ion-icon>
+        <span>Reenviado{{ message.forwardedFrom ? ' de ' + message.forwardedFrom : '' }}</span>
+      </div>
+    }
+
+    @if (message.replyTo && !message.isDeleted) {
+      <button type="button" class="reply-quote" (click)="onQuoteClick()">
+        <span class="reply-author">{{ message.replyTo.senderName }}</span>
+        <span class="reply-preview">{{ message.replyTo.previewText }}</span>
+      </button>
+    }
+
+    @if (message.isDeleted) {
+      <div class="deleted-text">
+        <ion-icon name="ban-outline"></ion-icon>
+        <span>Mensaje eliminado</span>
+      </div>
+    } @else {
+      @if ((message.type === 'image' || message.type === 'document' || message.type === 'audio') && message.mediaUrl) {
+        <div class="embed-block">
+          <app-media-attachment-preview
+            [mediaType]="message.type"
+            [mediaUrl]="message.mediaUrl"
+            [fileName]="message.fileName || ''"
+            [mimeType]="message.mimeType || ''"
+            [fileSize]="message.fileSize ?? null"
+            [durationSeconds]="message.durationSeconds ?? null"
+            [isOwnMessage]="isOwn"
+          ></app-media-attachment-preview>
+        </div>
+      }
+
+      @if (message.type === 'location' && message.latitude !== undefined && message.longitude !== undefined) {
+        <div class="embed-block">
+          <app-location-card
+            [latitude]="message.latitude"
+            [longitude]="message.longitude"
+            [label]="message.locationLabel ?? null"
+            [accuracy]="message.accuracy ?? null"
+          ></app-location-card>
+        </div>
+      }
+
+      @if (message.type === 'poll' && message.pollId) {
+        <div class="embed-block">
+          <app-poll-card
+            [pollId]="message.pollId"
+            [currentUid]="currentUid"
+            [canManage]="canManagePolls || isOwn"
+          ></app-poll-card>
+        </div>
+      }
+
+      @if (message.text && message.type !== 'poll' && message.type !== 'location') {
+        <div class="message-text">{{ message.text }}</div>
+      }
+    }
+
+    <div class="meta-row">
+      @if (isPinned) {
+        <ion-icon name="pin-outline" class="pin-indicator"></ion-icon>
+      }
+      @if (message.isEdited && !message.isDeleted) {
+        <span class="edited-tag">editado</span>
+      }
+      <span class="time-tag">{{ formattedTime }}</span>
+      @if (isOwn && !message.isDeleted) {
+        <ion-icon name="checkmark-done-outline" class="read-check" [class.read]="isReadByOthers"></ion-icon>
+      }
+      @if (!message.isDeleted) {
+        <ion-button
+          fill="clear"
+          size="small"
+          class="menu-trigger"
+          aria-label="Opciones del mensaje"
+          (click)="toggleMenu()"
+        >
+          <ion-icon slot="icon-only" name="ellipsis-horizontal-outline"></ion-icon>
+        </ion-button>
+      }
+    </div>
+
+    @if (showMenu() && !message.isDeleted) {
+      <div class="actions-bar">
+        <ion-button fill="clear" size="small" aria-label="Reaccionar" (click)="toggleReactionsPicker()">
+          <ion-icon slot="icon-only" name="happy-outline"></ion-icon>
+        </ion-button>
+        <ion-button fill="clear" size="small" aria-label="Responder" (click)="onReply()">
+          <ion-icon slot="icon-only" name="arrow-undo-outline"></ion-icon>
+        </ion-button>
+        <ion-button fill="clear" size="small" aria-label="Reenviar" (click)="onForward()">
+          <ion-icon slot="icon-only" name="arrow-redo-outline"></ion-icon>
+        </ion-button>
+        @if (canPin) {
+          <ion-button
+            fill="clear"
+            size="small"
+            [attr.aria-label]="isPinned ? 'Desfijar' : 'Fijar'"
+            (click)="onPinToggle()"
+          >
+            <ion-icon slot="icon-only" name="pin-outline"></ion-icon>
+          </ion-button>
+        }
+        @if (isOwn && message.type === 'text') {
+          <ion-button fill="clear" size="small" aria-label="Editar" (click)="onEdit()">
+            <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+          </ion-button>
+        }
+        @if (isOwn) {
+          <ion-button fill="clear" size="small" color="danger" aria-label="Eliminar" (click)="onDelete()">
+            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+          </ion-button>
+        }
+      </div>
+    }
+
+    @if (showReactionsPicker() && !message.isDeleted) {
+      <div class="emoji-picker">
+        @for (emoji of quickEmojis; track emoji) {
+          <button type="button" class="emoji-btn" (click)="onSelectEmoji(emoji)">{{ emoji }}</button>
+        }
+      </div>
+    }
+
+    @if (reactionEntries.length > 0 && !message.isDeleted) {
+      <div class="reactions-row">
+        @for (entry of reactionEntries; track entry.emoji) {
+          <button
+            type="button"
+            class="reaction-pill"
+            [class.active]="entry.reacted"
+            (click)="onSelectEmoji(entry.emoji)"
+          >
+            <span>{{ entry.emoji }}</span>
+            <span>{{ entry.count }}</span>
+          </button>
+        }
+      </div>
+    }
+  </div>
+</div>

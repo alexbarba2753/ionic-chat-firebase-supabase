@@ -1,0 +1,196 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/rooms"></ion-back-button>
+    </ion-buttons>
+
+    <div class="room-header-info">
+      <ion-avatar class="header-avatar">
+        @if (displayAvatar()) {
+        <img [src]="displayAvatar()!" [alt]="displayRoomName()" />
+        } @else {
+        <div class="avatar-fallback">
+          <ion-icon
+            [name]="room()?.room_type === 'channel' ? 'megaphone-outline' : room()?.room_type === 'group' ? 'people-outline' : 'chatbubble-ellipses-outline'"
+          ></ion-icon>
+        </div>
+        }
+      </ion-avatar>
+      <div class="header-titles">
+        <ion-title class="room-title">{{ displayRoomName() }}</ion-title>
+        <div class="room-subtitle" [class.typing]="typingUsers().length > 0">{{ subtitleText() }}</div>
+      </div>
+    </div>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="toggleSearch()" aria-label="Buscar mensajes">
+        <ion-icon slot="icon-only" name="search-outline"></ion-icon>
+      </ion-button>
+      <ion-button (click)="openMediaGallery()" aria-label="Galeria multimedia">
+        <ion-icon slot="icon-only" name="images-outline"></ion-icon>
+      </ion-button>
+      <ion-button (click)="goToRoomSettings()" aria-label="Ajustes de sala">
+        <ion-icon slot="icon-only" name="settings-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  @if (showSearch()) {
+  <app-message-search-bar
+    [messages]="messages()"
+    (matchesChange)="onSearchMatches($event)"
+    (activeMatchChange)="onActiveSearchMatch($event)"
+    (closed)="closeSearch()"
+  ></app-message-search-bar>
+  } @if (pinnedMessage(); as pinned) {
+  <app-pinned-message-banner
+    [message]="pinned"
+    [canUnpin]="canPinMessages()"
+    (jumpToMessage)="scrollToMessage($event)"
+    (unpinMessage)="onUnpinCurrent()"
+  ></app-pinned-message-banner>
+  }
+</ion-header>
+
+<ion-content #chatContent class="chat-content">
+  @if (loading()) {
+  <div class="center-state">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+  } @else if (messages().length === 0) {
+  <div class="center-state">
+    <ion-text color="medium">Aun no hay mensajes en esta sala. Escribe el primero.</ion-text>
+  </div>
+  } @else {
+  <div class="messages-list">
+    @for (msg of messages(); track msg.id ?? $index) {
+    <app-message-bubble
+      [message]="msg"
+      [currentUid]="currentUid()"
+      [isOwn]="msg.senderUid === currentUid()"
+      [showSenderName]="room()?.room_type !== 'direct'"
+      [isPinned]="!!msg.id && msg.id === room()?.pinned_message_id"
+      [isHighlighted]="!!msg.id && (msg.id === highlightedMessageId() || searchMatches().includes(msg.id))"
+      [canPin]="canPinMessages()"
+      [canManagePolls]="canPinMessages()"
+      (reply)="onStartReply($event)"
+      (forward)="onOpenForward($event)"
+      (edit)="onStartEdit($event)"
+      (deleteMsg)="onConfirmDelete($event)"
+      (pinToggle)="onTogglePin($event)"
+      (react)="onToggleReaction($event)"
+      (quoteClick)="scrollToMessage($event)"
+    ></app-message-bubble>
+    }
+  </div>
+  }
+</ion-content>
+
+<ion-footer class="chat-footer">
+  @if (replyingTo(); as reply) {
+  <div class="context-bar">
+    <div class="context-info">
+      <strong>Respondiendo a {{ reply.senderName }}</strong>
+      <span>{{ reply.previewText }}</span>
+    </div>
+    <ion-button fill="clear" size="small" aria-label="Cancelar respuesta" (click)="cancelReplyOrEdit()">
+      <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+    </ion-button>
+  </div>
+  } @if (editingMessage()) {
+  <div class="context-bar">
+    <div class="context-info">
+      <strong>Editando mensaje</strong>
+      <span>{{ editingMessage()?.text }}</span>
+    </div>
+    <ion-button fill="clear" size="small" aria-label="Cancelar edicion" (click)="cancelReplyOrEdit()">
+      <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+    </ion-button>
+  </div>
+  } @if (showAttachments()) {
+  <div class="attachments-tray">
+    <ion-button fill="clear" size="small" (click)="onPickImage()">
+      <ion-icon slot="start" name="camera-outline"></ion-icon>
+      Imagen
+    </ion-button>
+    <ion-button fill="clear" size="small" (click)="onPickDocument()">
+      <ion-icon slot="start" name="document-text-outline"></ion-icon>
+      Archivo
+    </ion-button>
+    <ion-button fill="clear" size="small" (click)="openShareLocation()">
+      <ion-icon slot="start" name="location-outline"></ion-icon>
+      Ubicacion
+    </ion-button>
+    <ion-button fill="clear" size="small" (click)="openCreatePoll()">
+      <ion-icon slot="start" name="stats-chart-outline"></ion-icon>
+      Encuesta
+    </ion-button>
+  </div>
+  } @if (uploadingMedia()) {
+  <div class="uploading-bar">
+    <ion-spinner name="dots"></ion-spinner>
+    <ion-text color="medium"><small>Subiendo archivo...</small></ion-text>
+  </div>
+  }
+
+  <input #imageInput type="file" accept="image/*" hidden (change)="onWebImageSelected($event)" />
+  <input #docInput type="file" [accept]="acceptedDocTypes" hidden (change)="onWebDocSelected($event)" />
+
+  @if (showVoiceRecorder()) {
+  <div class="voice-box">
+    <app-voice-recorder
+      [autoStart]="true"
+      [disabled]="sending() || uploadingMedia()"
+      (recorded)="onVoiceRecorded($event)"
+      (cancelled)="showVoiceRecorder.set(false)"
+    ></app-voice-recorder>
+  </div>
+  } @else {
+  <div class="composer-row">
+    <ion-button
+      fill="clear"
+      size="small"
+      aria-label="Adjuntar"
+      [disabled]="!!editingMessage() || uploadingMedia()"
+      (click)="toggleAttachments()"
+    >
+      <ion-icon slot="icon-only" [name]="showAttachments() ? 'close-outline' : 'attach-outline'"></ion-icon>
+    </ion-button>
+
+    <ion-textarea
+      class="composer-input"
+      placeholder="Escribe un mensaje..."
+      rows="1"
+      [autoGrow]="true"
+      [value]="draftText()"
+      (ionInput)="onDraftInput($event)"
+      (keydown.enter)="onEnterKey($event)"
+    ></ion-textarea>
+
+    @if (draftText().trim().length > 0 || editingMessage()) {
+    <ion-button
+      color="primary"
+      fill="solid"
+      shape="round"
+      size="small"
+      [disabled]="sending() || !draftText().trim()"
+      aria-label="Enviar mensaje"
+      (click)="onSubmitText()"
+    >
+      <ion-icon slot="icon-only" [name]="editingMessage() ? 'checkmark-outline' : 'send'"></ion-icon>
+    </ion-button>
+    } @else {
+    <ion-button
+      fill="clear"
+      size="small"
+      color="primary"
+      aria-label="Grabar nota de voz"
+      [disabled]="uploadingMedia()"
+      (click)="openVoiceRecorder()"
+    >
+      <ion-icon slot="icon-only" name="mic-outline"></ion-icon>
+    </ion-button>
+    }
+  </div>
+  }
+</ion-footer>
