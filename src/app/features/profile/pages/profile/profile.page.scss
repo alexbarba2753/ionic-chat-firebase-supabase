@@ -1,0 +1,75 @@
+.center-loader {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-container {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.profile-card {
+  border-radius: 16px;
+  margin-bottom: 16px;
+}
+
+.avatar-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+}
+
+.avatar-wrapper {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.profile-avatar {
+  width: 92px;
+  height: 92px;
+}
+
+.avatar-fallback {
+  width: 100%;
+  height: 100%;
+  background: var(--ion-color-primary);
+  color: #ffffff;
+  font-size: 1.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.presence-dot {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  background: var(--ion-color-medium);
+}
+
+.presence-dot.online {
+  background: var(--ion-color-success);
+}
+
+.email-text {
+  margin: 0;
+  color: var(--ion-color-medium);
+  font-size: 0.9rem;
+}
+
+.badge-row {
+  margin: 4px 0 8px;
+}
+
+.field-item {
+  margin-bottom: 12px;
+}

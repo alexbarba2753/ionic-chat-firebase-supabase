@@ -1,0 +1,150 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Mi Perfil</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="onVerifyCloud()" aria-label="Verificar conexion">
+        <ion-icon slot="icon-only" name="sync-outline"></ion-icon>
+      </ion-button>
+      <ion-button (click)="onLogout()" aria-label="Cerrar sesion">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if (loading()) {
+  <div class="center-loader">
+    <ion-spinner name="crescent"></ion-spinner>
+  </div>
+  } @else if (profile(); as current) {
+  <div class="profile-container">
+    <ion-card class="profile-card">
+      <ion-card-content class="avatar-header">
+        <div class="avatar-wrapper">
+          <ion-avatar class="profile-avatar">
+            @if (current.avatar_url) {
+            <img [src]="current.avatar_url" [alt]="current.display_name" />
+            } @else {
+            <div class="avatar-fallback">{{ initials }}</div>
+            }
+          </ion-avatar>
+          <span class="presence-dot" [class.online]="current.is_online"></span>
+        </div>
+
+        <h2>{{ current.display_name }}</h2>
+        <p class="email-text">{{ current.email }}</p>
+
+        <div class="badge-row">
+          <ion-chip color="success" outline="true">
+            <ion-icon name="radio-button-on"></ion-icon>
+            <ion-label>{{ current.status_text }}</ion-label>
+          </ion-chip>
+        </div>
+
+        <input #fileInput type="file" accept="image/*" hidden (change)="onWebFileSelected($event)" />
+
+        <ion-button size="small" fill="outline" [disabled]="uploadingAvatar()" (click)="onChangeAvatar()">
+          @if (uploadingAvatar()) {
+          <ion-spinner name="dots"></ion-spinner>
+          } @else {
+          <ion-icon slot="start" name="camera-outline"></ion-icon>
+          Cambiar foto }
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card class="profile-card">
+      <ion-card-header>
+        <ion-card-title>Editar informacion</ion-card-title>
+        <ion-card-subtitle>Se sincroniza en Supabase PostgreSQL y Firestore</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        <form [formGroup]="form" (ngSubmit)="onSaveProfile()">
+          <div class="field-item">
+            <ion-input
+              label="Nombre visible"
+              labelPlacement="floating"
+              fill="outline"
+              formControlName="display_name"
+            ></ion-input>
+          </div>
+
+          <div class="field-item">
+            <ion-input label="Usuario" labelPlacement="floating" fill="outline" formControlName="username"></ion-input>
+          </div>
+
+          <div class="field-item">
+            <ion-select label="Estado rapido" labelPlacement="floating" fill="outline" formControlName="status_text">
+              <ion-select-option value="En linea">En linea</ion-select-option>
+              <ion-select-option value="Disponible">Disponible</ion-select-option>
+              <ion-select-option value="Ocupado">Ocupado</ion-select-option>
+              <ion-select-option value="En clase">En clase</ion-select-option>
+            </ion-select>
+          </div>
+
+          <div class="field-item">
+            <ion-input
+              label="Telefono"
+              labelPlacement="floating"
+              fill="outline"
+              type="tel"
+              formControlName="phone"
+            ></ion-input>
+          </div>
+
+          <div class="field-item">
+            <ion-textarea
+              label="Biografia"
+              labelPlacement="floating"
+              fill="outline"
+              [rows]="3"
+              formControlName="bio"
+            ></ion-textarea>
+          </div>
+
+          <ion-button expand="block" type="submit" [disabled]="saving()">
+            @if (saving()) {
+            <ion-spinner name="crescent"></ion-spinner>
+            } @else { Guardar cambios }
+          </ion-button>
+        </form>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card class="profile-card">
+      <ion-card-header>
+        <ion-card-title>Estado de arquitectura dual</ion-card-title>
+        <ion-card-subtitle>UID: {{ current.firebase_uid }}</ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content>
+        @if (cloudStatus(); as status) {
+        <ion-list lines="none">
+          <ion-item>
+            <ion-icon slot="start" name="flame-outline" color="warning"></ion-icon>
+            <ion-label>Firebase Auth + Firestore</ion-label>
+            <ion-badge slot="end" [color]="status.firebaseOk ? 'success' : 'danger'">
+              {{ status.firebaseOk ? 'Conectado' : 'Error' }}
+            </ion-badge>
+          </ion-item>
+          <ion-item>
+            <ion-icon slot="start" name="server-outline" color="tertiary"></ion-icon>
+            <ion-label>Supabase PostgreSQL + Storage</ion-label>
+            <ion-badge slot="end" [color]="status.supabaseOk ? 'success' : 'danger'">
+              {{ status.supabaseOk ? 'Conectado' : 'Error' }}
+            </ion-badge>
+          </ion-item>
+        </ion-list>
+        }
+
+        <ion-button expand="block" color="danger" fill="outline" class="ion-margin-top" (click)="onLogout()">
+          <ion-icon slot="start" name="log-out-outline"></ion-icon>
+          Cerrar sesion
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
+  }
+</ion-content>
